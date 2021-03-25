@@ -1,0 +1,24 @@
+#!/bin/bash
+
+force=0
+logout=0
+browser=${OC_BROWSER:-xdg-open}
+
+logged_in () {
+	oc whoami > /dev/null 2>&1
+}
+
+while getopts f ch; do
+	case $ch in
+		(f)	force=1
+			;;
+	esac
+done
+shift $(( OPTIND - 1 ))
+
+server=$(oc whoami --show-server | awk -F: '{printf "%s:%s", $1, $2}')
+sso=${server/api/oauth-openshift.apps}
+
+if (( force )) || ! logged_in; then
+	${browser} "${sso}/oauth/token/request"
+fi
