@@ -2,7 +2,7 @@
 
 oc config get-contexts -o name |
 	fzf -q "$(oc config current-context)" \
-		--bind 'd:execute(oc config delete-context {1})+reload(oc config get-contexts -o name)' \
+		--bind 'ctrl-d:execute(oc config delete-context {1})+reload(oc config get-contexts -o name)' \
 		--bind 'enter:execute(oc config use-context {1})+execute(oc sso)+abort' \
-		--bind 'x:execute(oc config use-context {1})+abort' \
-		--bind 'c:execute(oc config use-context {1})+execute(oc console)+abort'
+		--bind 'ctrl-x:execute(oc config use-context {1})+abort' \
+		--bind 'ctrl-c:execute(oc config use-context {1})+execute(oc console)+abort'
