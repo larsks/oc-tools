@@ -1,7 +1,6 @@
 #!/bin/sh
 
 browser=${OC_BROWSER:-xdg-open}
-server=$(oc whoami --show-server | awk -F: '{printf "%s:%s", $1, $2}')
-url=${server/api/console-openshift-console.apps}
+url="https://$(oc -n openshift-console get route console -o jsonpath='{.spec.host}')"
 
 exec ${browser} "$url"
