@@ -1,0 +1,55 @@
+#!/bin/bash
+
+log() {
+	echo "${0##*/}: $1" >&2
+}
+
+die() {
+	log "ERROR: $1" >&2
+	exit 1
+}
+
+usage() {
+	echo "${0##*/}: usage: ${0##*/} [-n <namespace>] <obc_name>"
+}
+
+ARGS=$(getopt -o 'n:' --long 'namespace=' -n 'export-obc-access' -- "$@") || {
+	usage >&2
+	exit 2
+}
+
+eval set -- "$ARGS"
+
+while :; do
+	case "$1" in
+		(-n|--namespace)
+			namespace="$2"
+			shift 2
+			;;
+		(--)
+			shift
+			break
+			;;
+
+		(-*)
+			die "unimplemented option: $1"
+			;;
+	esac
+done
+
+if (( $# < 1 )); then
+	usage >&2
+	exit 2
+fi
+
+for obc_name in "$@"; do
+	log "getting information for $obc_name"
+	oc  ${namespace:+-n $namespace} get secret/$obc_name cm/$obc_name -o json |
+		jq '.items[0].data[] |= @base64d |
+			{
+				"name": .items[0].metadata.name,
+				"secret": .items[0].data,
+				"config": .items[1].data
+			}
+		'
+done
